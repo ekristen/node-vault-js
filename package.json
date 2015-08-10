@@ -1,10 +1,11 @@
 {
   "name": "node-vault-js",
   "version": "1.0.0",
-  "description": "",
+  "description": "Pure Javascript Vault Client",
   "main": "vault.js",
   "author": "Erik Kristensen <erik@erikkristensen.com>",
   "license": "MIT",
+  "repository": "ekristen/node-vault-js",
   "dependencies": {
     "debug": "^2.2.0",
     "mustache": "^2.1.3",

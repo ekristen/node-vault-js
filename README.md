@@ -1,6 +1,6 @@
 # Vault Node.JS Client
 
-A Vault Client implemented in pure javascript (because I detest CoffeeScript) for https://github.com/hashicorp/vault.
+A Vault Client implemented in pure javascript (because I strongly dislike CoffeeScript) for https://github.com/hashicorp/vault.
 
 The original code was from https://github.com/kr1sp1n/node-vault, thank you to @kr1sp1n for the work. This code was compiled original from CoffeeScript and then cleaned up and modified to use the `debug` and `request` library.
 
