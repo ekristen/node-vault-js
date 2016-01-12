@@ -3,7 +3,11 @@ var xtend = require('xtend');
 var request = require('request');
 var mustache = require('mustache');
 
-var Vault = function(opts) {
+function Vault (opts) {
+  if (!(this instanceof Vault)) {
+    return new Vault(opts);
+  }
+
   this.commands = {
     status: {
       method: 'GET',
@@ -90,14 +94,14 @@ var Vault = function(opts) {
       path: '/sys/revoke-prefix/{{path_prefix}}'
     }
   };
-  
+
   var k, v;
   if (opts == null) {
     opts = {};
   }
 
   this.apiVersion = opts.apiVersion || 'v1';
-  this.endpoint = opts.endpoint || "http://127.0.0.1:8200";
+  this.endpoint = opts.endpoint || 'http://127.0.0.1:8200';
   this.token = opts.token || '';
   this.requestOptions = opts.requestOptions || {};
 
@@ -109,26 +113,39 @@ var Vault = function(opts) {
 
 Vault.prototype.help = function(path, done) {
   debug("help for " + path);
-  return this._request('GET', '/' + path + '?help=1', null, this._handleErrors(done));
+  return this._request('GET', '/' + path + '?help=1', null, handleResponse(done));
 };
 
 Vault.prototype.write = function(path, data, done) {
   debug("write " + path);
-  return this._request('PUT', '/' + path, data, this._handleErrors(done));
+  return this._request('PUT', '/' + path, data, handleResponse(done));
 };
 
 Vault.prototype.read = function(path, done) {
   debug("read " + path);
-  return this._request('GET', '/' + path, null, this._handleErrors(done));
+  return this._request('GET', '/' + path, null, handleResponse(done));
 };
 
 Vault.prototype["delete"] = function(path, done) {
   debug("delete " + path);
-  return this._request('DELETE', '/' + path, null, this._handleErrors(done));
+  return this._request('DELETE', '/' + path, null, handleResponse(done));
 };
 
-Vault.prototype._handleErrors = function(done) {
-  return function(err, res, body) {
+Vault.prototype._generate = function(name, opts) {
+  return this[name] = function() {
+    var done, params;
+    debug("" + name);
+    params = arguments[0], done = arguments[1];
+    if (typeof params === 'function') {
+      done = params;
+      params = null;
+    }
+    return this._request(opts.method, opts.path, params, handleResponse(done));
+  };
+};
+
+function handleResponse (done) {
+  return function (err, res, body) {
     if (err) {
       debug(err);
     }
@@ -143,20 +160,7 @@ Vault.prototype._handleErrors = function(done) {
     }
     return done(null, body);
   };
-};
-
-Vault.prototype._generate = function(name, opts) {
-  return this[name] = function() {
-    var done, params;
-    debug("" + name);
-    params = arguments[0], done = arguments[1];
-    if (typeof params === 'function') {
-      done = params;
-      params = null;
-    }
-    return this._request(opts.method, opts.path, params, this._handleErrors(done));
-  };
-};
+}
 
 Vault.prototype._request = function(method, path, data, done) {
   var j = request.jar();
@@ -165,22 +169,22 @@ Vault.prototype._request = function(method, path, data, done) {
     debug(data);
   }
 
-  var uri = this.endpoint + "/" + this.apiVersion + path;
+  var uri = this.endpoint + '/' + this.apiVersion + path;
   uri = mustache.render(uri, data);
   uri = uri.replace(/&#x2F;/g, '/');
 
   debug(method + " " + uri);
 
-  cookie = request.cookie("token=" + this.token);
+  var cookie = request.cookie("token=" + this.token);
   j.setCookie(cookie, this.endpoint);
 
-  requestOptions = xtend({
+  var requestOptions = xtend({
     jar: j,
     method: method,
     json: data,
     uri: uri,
     followRedirects: true,
-    followAllRedirects: true,
+    followAllRedirects: true
   }, this.requestOptions)
 
   debug('requestOptions: %j', requestOptions)
