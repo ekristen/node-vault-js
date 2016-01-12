@@ -1,6 +1,6 @@
 {
   "name": "node-vault-js",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Pure Javascript Vault Client",
   "main": "vault.js",
   "author": "Erik Kristensen <erik@erikkristensen.com>",
