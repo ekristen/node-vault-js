@@ -15,15 +15,42 @@ npm install node-vault-js
 ## Example
 
 ```javascript
-var vault = new VaultAPI({
-  endpoint: 'https://vault.private.io:8200',
+var Vault = require('node-vault-js');
+var vault = new Vault({
+  endpoint: 'https://vault.private.io:8200'
 });
 
-vault.write('auth/github/login', { token: access_token }, function(err, result) {
+vault.write('auth/github/login', { token: access_token }, function (err, result) {
 
 });
 ```
 
-## Documentation
+## Api
 
-Coming Soon
+### `Vault([options])`
+
+This module exports a constructor which takes the following options:
+
+* `apiVersion` *(String, optional)* which api version to use, defaults to `'v1'`
+* `endpoint` *(String, optional)* vault endpoint of format `'host:port'`, defaults to `'http://127.0.0.1:8200'`
+* `token` *(String, optional)* cookie token, defaults to `''`
+* `requestOptions` *(Object, optional)* extra request options, defaults to `{}`
+
+### `Vault##write(path, data, cb)`
+
+Writes `data` to `path`.
+
+### `Vault##read(path, cb)`
+
+Reads data from `path`.
+
+### `Vault##delete(path, cb)`
+
+Deletes data stored at `path`.
+
+### `Vault##help(path, cb)`
+
+Gets help for `path`.
+
+## License
+MIT
