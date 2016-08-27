@@ -163,8 +163,6 @@ function handleResponse (done) {
 }
 
 Vault.prototype._request = function(method, path, data, done) {
-  var j = request.jar();
-
   if (data != null) {
     debug(data);
   }
@@ -175,16 +173,15 @@ Vault.prototype._request = function(method, path, data, done) {
 
   debug(method + " " + uri);
 
-  var cookie = request.cookie("token=" + this.token);
-  j.setCookie(cookie, this.endpoint);
-
   var requestOptions = xtend({
-    jar: j,
     method: method,
     json: data,
     uri: uri,
     followRedirects: true,
-    followAllRedirects: true
+    followAllRedirects: true,
+    headers: {
+      'X-Vault-Token': this.token
+    }
   }, this.requestOptions)
 
   debug('requestOptions: %j', requestOptions)

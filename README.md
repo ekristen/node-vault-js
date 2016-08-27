@@ -17,11 +17,30 @@ npm install node-vault-js
 ```javascript
 var Vault = require('node-vault-js');
 var vault = new Vault({
-  endpoint: 'https://vault.private.io:8200'
+  endpoint: 'https://vault.private.io:8200',
+  token: access_token
 });
 
-vault.write('auth/github/login', { token: access_token }, function (err, result) {
+vault.write('secret/hello', { value: 'world', lease: '1s' }, function(err, result) {
+  if (err) {
+    throw err
+  }
+  console.log('Wrote with response: ', result)
 
+  vault.read('secret/hello', function(err, result) {
+    if (err) {
+      throw err
+    }
+    console.log('Read with response: ', result)
+
+    vault.delete('secret/hello', function(err, result) {
+    if (err) {
+      throw err
+    }
+    console.log('Deleted with response: ', result)
+
+    });
+  });
 });
 ```
 
@@ -51,6 +70,36 @@ Deletes data stored at `path`.
 ### `Vault##help(path, cb)`
 
 Gets help for `path`.
+
+## Auth
+
+Don't forget to authenticate with the vault server before you do any operations
+that need an access token. Here is an easy example using the request module.
+
+``` javascript
+  var url = require('url')
+  var request = require('request')
+
+  function authenticateVault (vaultURL, appId, userId, callback) {
+    var vaultLogin = url.resolve(vaultURL, '/v1/auth/app-id/login')
+    var opts = {
+      url: vaultLogin,
+      body: {
+        app_id: appId,
+        user_id: userId
+      },
+      json: true
+    }
+    request.post(opts, function (err, res, body) {
+      if (err) {
+        return callback(err)
+      }
+
+      callback(null, body.auth.client_token)
+    })
+  }
+```
+
 
 ## License
 MIT
